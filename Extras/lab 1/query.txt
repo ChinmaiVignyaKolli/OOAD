@@ -1,0 +1,201 @@
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| company            |
+| mysql              |x
+| performance_schema |
++--------------------+
+4 rows in set (0.00 sec)
+
+mysql> use company;
+Database changed
+mysql> create table employee (fname varchar(15) NOT NULL,lname varchar(15) NOT NULL, ssn char(9) NOT NULL,bdate date,Address varchar(30),gender char, salary integer,super_ssn varchar(9),dno int NOT NULL, primary key (ssn), foreign key (super_ssn) references employee(ssn));
+Query OK, 0 rows affected (0.12 sec)
+
+mysql> show employee;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'employee' at line 1
+mysql> desc employee
+    -> ;
++-----------+-------------+------+-----+---------+-------+
+| Field     | Type        | Null | Key | Default | Extra |
++-----------+-------------+------+-----+---------+-------+
+| fname     | varchar(15) | NO   |     | NULL    |       |
+| lname     | varchar(15) | NO   |     | NULL    |       |
+| ssn       | char(9)     | NO   | PRI | NULL    |       |
+| bdate     | date        | YES  |     | NULL    |       |
+| Address   | varchar(30) | YES  |     | NULL    |       |
+| gender    | char(1)     | YES  |     | NULL    |       |
+| salary    | int(11)     | YES  |     | NULL    |       |
+| super_ssn | varchar(9)  | YES  | MUL | NULL    |       |
+| dno       | int(11)     | NO   |     | NULL    |       |
++-----------+-------------+------+-----+---------+-------+
+9 rows in set (0.00 sec)
+
+mysql> alter table employee add foreign key(dno) references dept(dno);
+ERROR 1005 (HY000): Can't create table 'company.#sql-1dc9_2a' (errno: 150)
+mysql> create table dept (dname int not null,dnumber int not null,mgr_ssn char(9) not null,mgr_start_date date primary key(dnumber),foreign key(mgr_ssn) references employee(ssn));
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '(dnumber),foreign key(mgr_ssn) references employee(ssn))' at line 1
+mysql> create table dept (dname varchar(15) not null,dnumber int not null,mgr_ssn char(9) not null,mgr_start_date date, primary key(dnumber),foreign key(mgr_ssn) references employee(ssn));
+Query OK, 0 rows affected (0.15 sec)
+
+mysql> desc dept
+    -> ;
++----------------+-------------+------+-----+---------+-------+
+| Field          | Type        | Null | Key | Default | Extra |
++----------------+-------------+------+-----+---------+-------+
+| dname          | varchar(15) | NO   |     | NULL    |       |
+| dnumber        | int(11)     | NO   | PRI | NULL    |       |
+| mgr_ssn        | char(9)     | NO   | MUL | NULL    |       |
+| mgr_start_date | date        | YES  |     | NULL    |       |
++----------------+-------------+------+-----+---------+-------+
+4 rows in set (0.00 sec)
+
+mysql> alter table employee add foreign key(dno) references dept(dnumber);
+Query OK, 0 rows affected (0.56 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> desc employee dept;
+Empty set (0.00 sec)
+
+mysql> desc employee;
++-----------+-------------+------+-----+---------+-------+
+| Field     | Type        | Null | Key | Default | Extra |
++-----------+-------------+------+-----+---------+-------+
+| fname     | varchar(15) | NO   |     | NULL    |       |
+| lname     | varchar(15) | NO   |     | NULL    |       |
+| ssn       | char(9)     | NO   | PRI | NULL    |       |
+| bdate     | date        | YES  |     | NULL    |       |
+| Address   | varchar(30) | YES  |     | NULL    |       |
+| gender    | char(1)     | YES  |     | NULL    |       |
+| salary    | int(11)     | YES  |     | NULL    |       |
+| super_ssn | varchar(9)  | YES  | MUL | NULL    |       |
+| dno       | int(11)     | NO   | MUL | NULL    |       |
++-----------+-------------+------+-----+---------+-------+
+9 rows in set (0.00 sec)
+
+mysql> create table dept_locns(dnumber int not null,dlocn varchar(15) not null,primary key(dnumber,dlocn),foreign key(dnumber) references dept(dnumber));
+Query OK, 0 rows affected (0.21 sec)
+
+mysql> desc dept_locns
+    -> ;
++---------+-------------+------+-----+---------+-------+
+| Field   | Type        | Null | Key | Default | Extra |
++---------+-------------+------+-----+---------+-------+
+| dnumber | int(11)     | NO   | PRI | NULL    |       |
+| dlocn   | varchar(15) | NO   | PRI | NULL    |       |
++---------+-------------+------+-----+---------+-------+
+2 rows in set (0.01 sec)
+
+mysql> create table project (pname varchar(15) not null,pnumber int not null,plocn varchar(15),dnum int not null,
+    -> primary key(dnumber,dlocn), foreign key(dnumber) references dept(dnumber));
+ERROR 1072 (42000): Key column 'dnumber' doesn't exist in table
+mysql> create table project (pname varchar(15) not null,pnumber int not null,plocn varchar(15),dnum int not null, primary key(dnumber,dlocn), foreign key(dnum) references dept(dnumber));
+ERROR 1072 (42000): Key column 'dnumber' doesn't exist in table
+mysql> create table project (pname varchar(15) not null,pnumber int not null,plocn varchar(15),dnum int not null, primary key(dnum,dlocn), foreign key(dnum) references dept(dnumber));
+ERROR 1072 (42000): Key column 'dlocn' doesn't exist in table
+mysql> create table project (pname varchar(15) not null,pnumber int not null,plocn varchar(15),dnum int not null, primary key(pnumber), foreign key(dnum) references dept(dnumber));
+Query OK, 0 rows affected (0.12 sec)
+
+mysql> desc project
+    -> ;
++---------+-------------+------+-----+---------+-------+
+| Field   | Type        | Null | Key | Default | Extra |
++---------+-------------+------+-----+---------+-------+
+| pname   | varchar(15) | NO   |     | NULL    |       |
+| pnumber | int(11)     | NO   | PRI | NULL    |       |
+| plocn   | varchar(15) | YES  |     | NULL    |       |
+| dnum    | int(11)     | NO   | MUL | NULL    |       |
++---------+-------------+------+-----+---------+-------+
+4 rows in set (0.00 sec)
+
+mysql> create table works_on (essn char(9) not null, pno int not null,hours decimal(3,1) not null, primary key(essn,pno),foreign key(essn)references employee(ssn),foreign key(pno) references project(pnumber));
+Query OK, 0 rows affected (0.20 sec)
+
+mysql> desc works_on
+    -> ;
++-------+--------------+------+-----+---------+-------+
+| Field | Type         | Null | Key | Default | Extra |
++-------+--------------+------+-----+---------+-------+
+| essn  | char(9)      | NO   | PRI | NULL    |       |
+| pno   | int(11)      | NO   | PRI | NULL    |       |
+| hours | decimal(3,1) | NO   |     | NULL    |       |
++-------+--------------+------+-----+---------+-------+
+3 rows in set (0.00 sec)
+
+mysql> create table dependent
+    -> (essn char(9) not null,dependent_name varchar(15) not null, gender char,bdate date,relationship varchar(8), primary key(essn,dependent_name),foreignkey(essn) references employee(ssn));
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '(essn) references employee(ssn))' at line 2
+mysql> create table dependent (essn char(9) not null,dependent_name varchar(15) not null, gender char,bdate date,relationship varchar(8), primary key(essn,dependent_name),foreign key(essn) references employee(ssn));
+Query OK, 0 rows affected (0.11 sec)
+
+mysql> desc dependent
+    -> ;
++----------------+-------------+------+-----+---------+-------+
+| Field          | Type        | Null | Key | Default | Extra |
++----------------+-------------+------+-----+---------+-------+
+| essn           | char(9)     | NO   | PRI | NULL    |       |
+| dependent_name | varchar(15) | NO   | PRI | NULL    |       |
+| gender         | char(1)     | YES  |     | NULL    |       |
+| bdate          | date        | YES  |     | NULL    |       |
+| relationship   | varchar(8)  | YES  |     | NULL    |       |
++----------------+-------------+------+-----+---------+-------+
+5 rows in set (0.00 sec)
+
+mysql> desc employee
+    -> ;
++-----------+-------------+------+-----+---------+-------+
+| Field     | Type        | Null | Key | Default | Extra |
++-----------+-------------+------+-----+---------+-------+
+| fname     | varchar(15) | NO   |     | NULL    |       |
+| lname     | varchar(15) | NO   |     | NULL    |       |
+| ssn       | char(9)     | NO   | PRI | NULL    |       |
+| bdate     | date        | YES  |     | NULL    |       |
+| Address   | varchar(30) | YES  |     | NULL    |       |
+| gender    | char(1)     | YES  |     | NULL    |       |
+| salary    | int(11)     | YES  |     | NULL    |       |
+| super_ssn | varchar(9)  | YES  | MUL | NULL    |       |
+| dno       | int(11)     | NO   | MUL | NULL    |       |
++-----------+-------------+------+-----+---------+-------+
+9 rows in set (0.00 sec)
+
+mysql> update employee set ssn varchar(5);
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'varchar(5)' at line 1
+mysql> update employee set ssn=varchar(5) where varchar(10);
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'varchar(5) where varchar(10)' at line 1
+mysql> alter table employee change column ssn varchar(5) not null;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'varchar(5) not null' at line 1
+mysql> alter table employee modify ssn varchar(5) not null;
+Query OK, 0 rows affected (0.27 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> desc employee;
++-----------+-------------+------+-----+---------+-------+
+| Field     | Type        | Null | Key | Default | Extra |
++-----------+-------------+------+-----+---------+-------+
+| fname     | varchar(15) | NO   |     | NULL    |       |
+| lname     | varchar(15) | NO   |     | NULL    |       |
+| ssn       | varchar(5)  | NO   | PRI | NULL    |       |
+| bdate     | date        | YES  |     | NULL    |       |
+| Address   | varchar(30) | YES  |     | NULL    |       |
+| gender    | char(1)     | YES  |     | NULL    |       |
+| salary    | int(11)     | YES  |     | NULL    |       |
+| super_ssn | varchar(9)  | YES  | MUL | NULL    |       |
+| dno       | int(11)     | NO   | MUL | NULL    |       |
++-----------+-------------+------+-----+---------+-------+
+9 rows in set (0.00 sec)
+
+mysql> load date local infile '/home/iiitdm/s.txt' into table employee fields terminated by '$' lines terminated by '\n'; 
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'date local infile '/home/iiitdm/s.txt' into table employee fields terminated by ' at line 1
+mysql> load date local infile '/home/iiitdm/s.txt' into table employee fields terminated by '$' lines terminated by '\n'; 
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'date local infile '/home/iiitdm/s.txt' into table employee fields terminated by ' at line 1
+mysql> load date local infile '/home/abinaya/s.txt' into table employee fields terminated by '$' lines terminated by '\n'; 
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'date local infile '/home/abinaya/s.txt' into table employee fields terminated by' at line 1
+mysql> load data local infile '/home/abinaya/s.txt' into table employee fields terminated by '$' lines terminated by '\n'; 
+ERROR 1148 (42000): The used command is not allowed with this MySQL version
+mysql> load data local infile '/home/abinaya/m.txt' into table dept fields terminated by '$' lines terminated by '\n';
+ERROR 1148 (42000): The used command is not allowed with this MySQL version
+mysql> load data --local-infile '/home/abinaya/s.txt' into table employee fields terminated by '$' lines terminated by '\n'; 
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '--local-infile '/home/abinaya/s.txt' into table employee fields terminated by '$' at line 1
+mysql> exit

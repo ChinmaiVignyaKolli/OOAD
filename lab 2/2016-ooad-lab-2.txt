@@ -1,0 +1,12 @@
+LAB 2
+
+1. Discover three different approaches to sort an array of seven integers.  For each approach,
+
+(a) Calculate the system time on 100 random samples (100 different random integer array of size 7)
+
+(b) Compare the system times to identify the best approach among the three.
+
+(c) What is the theoretical estimate of your approaches.  That is, calculate the number of comparisons for each of the three approaches.  Focus your counting only on 'comparisons' and overlook 'assignment sts' etc.
+
+
+2. Write an algorithm to list all 2-size and 3-size subsets of a set of size 'n'.  Also print the count.
